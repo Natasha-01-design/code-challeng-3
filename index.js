@@ -64,7 +64,9 @@ function showEditForm() {
   if (selectedPostId === null) return;
   const post = posts[selectedPostId];
   editPostForm.classList.remove("hidden");
-  editPostForm.querySelector('[name="title"]').value = post.title;
+  editPostForm['title'].value=post.title;
+  editPostForm['content'].value=post.content;
+
 editPostForm.onsubmit = function (e) {
   e.preventDefault();
   if (selectedPostId === null) return;

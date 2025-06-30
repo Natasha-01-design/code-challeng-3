@@ -1,101 +1,121 @@
 
-// Simple in-memory post storage
-let posts = [];
-let selectedPostId = null;
+const API_URL = "http://localhost:3000/posts";
 
-
-// DOM elements
 const postListDiv = document.getElementById("post-list");
 const postDetailDiv = document.getElementById("post-detail");
 const newPostForm = document.getElementById("new-post-form");
 const editPostForm = document.getElementById("edit-post-form");
 const cancelEditBtn = document.getElementById("cancel-edit");
 
-if (!postListDiv || !postDetailDiv || !newPostForm || !editPostForm || !cancelEditBtn) {
-  throw new Error("One or more required DOM elements are missing. Please check your HTML.");
+let selectedPostId = null;
+
+// Fetch and render all posts
+function fetchPosts() {
+  fetch(API_URL)
+    .then((res) => res.json())
+    .then(renderPostList)
+    .catch((err) => console.error("Failed to load posts", err));
 }
 
-// Render all posts in the list
-function renderPostList() {
+// Render posts
+function renderPostList(posts) {
+  postListDiv.innerHTML = "<h2>All Posts</h2>";
   const list = document.createElement("ul");
-  posts.forEach((post, idx) => {
+
+  posts.forEach((post) => {
     const li = document.createElement("li");
-    li.textContent = post.title + " (by " + post.author + ")";
+    li.textContent = `${post.title} (by ${post.author})`;
     li.style.cursor = "pointer";
-    li.onclick = () => showPostDetail(idx);
+    li.onclick = () => showPostDetail(post);
     list.appendChild(li);
   });
-  postListDiv.innerHTML = "<h2>All Posts</h2>";
+
   postListDiv.appendChild(list);
 }
 
-// Show details of a selected post
-function showPostDetail(idx) {
-  selectedPostId = idx;
-  const post = posts[idx];
+// Show post details
+function showPostDetail(post) {
+  selectedPostId = post.id;
   postDetailDiv.innerHTML = `
     <h2>${post.title}</h2>
     <p><strong>Author:</strong> ${post.author}</p>
-    ${post.image ? `<img src="${post.image}" alt="Post image" style="max-width:200px;" />` : ""}
+    ${post.image ? `<img src="${post.image}" alt="Post image" style="max-width:200px;">` : ""}
     <p>${post.content}</p>
     <button id="edit-btn">Edit</button>
   `;
-  document.getElementById("edit-btn").onclick = showEditForm;
+  document.getElementById("edit-btn").onclick = () => startEditing(post);
 }
 
-// Handle new post submission
+// Submit new post
 newPostForm.onsubmit = function (e) {
   e.preventDefault();
   const formData = new FormData(newPostForm);
-  const newPost = {
+  const post = {
     title: formData.get("title"),
     author: formData.get("author"),
     image: formData.get("image"),
     content: formData.get("content"),
   };
-  posts.push(newPost);
-  newPostForm.reset();
-  renderPostList();
-  postDetailDiv.innerHTML = "<h2>Select a post to see details</h2>";
+
+  fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(post),
+  })
+    .then(() => {
+      newPostForm.reset();
+      fetchPosts();
+      postDetailDiv.innerHTML = "<h2>Select a post to see details</h2>";
+    })
+    .catch((err) => console.error("Failed to add post", err));
 };
 
-// Show edit form with current post data
-function showEditForm() {
-  if (selectedPostId === null) return;
-  const post = posts[selectedPostId];
+// Start editing
+function startEditing(post) {
   editPostForm.classList.remove("hidden");
-  editPostForm['title'].value=post.title;
-  editPostForm['content'].value=post.content;
+  newPostForm.classList.add("hidden");
 
+  editPostForm.querySelector('[name="title"]').value = post.title;
+  editPostForm.querySelector('[name="author"]').value = post.author;
+  editPostForm.querySelector('[name="image"]').value = post.image;
+  editPostForm.querySelector('[name="content"]').value = post.content;
+
+  selectedPostId = post.id;
+}
+
+// Submit edit
 editPostForm.onsubmit = function (e) {
   e.preventDefault();
-  if (selectedPostId === null) return;
+  if (!selectedPostId) return;
 
-  posts[selectedPostId].title = editPostForm.querySelector('[name="title"]').value;
-  posts[selectedPostId].author = editPostForm.querySelector('[name="author"]').value;
-  posts[selectedPostId].image = editPostForm.querySelector('[name="image"]').value;
-  posts[selectedPostId].content = editPostForm.querySelector('[name="content"]').value;
+  const updatedPost = {
+    title: editPostForm.querySelector('[name="title"]').value,
+    author: editPostForm.querySelector('[name="author"]').value,
+    image: editPostForm.querySelector('[name="image"]').value,
+    content: editPostForm.querySelector('[name="content"]').value,
+  };
 
-  editPostForm.classList.add("hidden");
-  renderPostList();
-  // Only show details if the post still exists
-  if (posts[selectedPostId]) {
-    showPostDetail(selectedPostId);
-  } else {
-    postDetailDiv.innerHTML = "<h2>Select a post to see details</h2>";
-  }
-};
-  editPostForm.classList.add("hidden");
-  renderPostList();
-  showPostDetail(selectedPostId);
+  fetch(`${API_URL}/${selectedPostId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedPost),
+  })
+    .then(() => {
+      editPostForm.reset();
+      editPostForm.classList.add("hidden");
+      newPostForm.classList.remove("hidden");
+      fetchPosts();
+      postDetailDiv.innerHTML = "<h2>Post updated. Select one to see details.</h2>";
+    })
+    .catch((err) => console.error("Failed to update post", err));
 };
 
 // Cancel editing
-cancelEditBtn.onclick = function () {
+cancelEditBtn.onclick = () => {
   editPostForm.classList.add("hidden");
+  newPostForm.classList.remove("hidden");
+  editPostForm.reset();
 };
 
-// Initial render
-renderPostList();
-
-  
+// Initial load
+fetchPosts();

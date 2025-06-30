@@ -1,19 +1,39 @@
 {
   "posts": [
     {
-      "id": 1,
-      "title": "json-server",
-      "author": "Natasha Karwitha"
-    }
-  ],
-  "comments": [
+      "id": "1",
+      "title": "Welcome Post",
+      "author": "Natasha",
+      "image": "https://via.placeholder.com/300x200.png?text=Example+Image",
+      "content": "This is your first blog post! Edit or add more."
+    },
     {
-      "id": 1,
-      "body": "some comment",
-      "postId": 1
+      "id": "c925",
+      "title": "mt",
+      "author": "me",
+      "image": "https://i.imgur.com/Wmn5t5y.jpeg",
+      "content": "me"
+    },
+    {
+      "id": "28dd",
+      "title": "imt",
+      "author": "imru",
+      "image": "https://imgur.com/gallery/trump-bombs-iran-demands-peace-prize-EnbJ86G",
+      "content": "me"
+    },
+    {
+      "id": "9400",
+      "title": "mr",
+      "author": "me",
+      "image": "https://www.google.com/url?sa=i&url=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Ffree-images&psig=AOvVaw0yGERqNVn3uzWBY3yToNmR&ust=1751373268605000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCKCooP-TmY4DFQAAAAAdAAAAABAE",
+      "content": "valid"
+    },
+    {
+      "id": "daeb",
+      "title": "browsed",
+      "author": "browser",
+      "image": "https://images.unsplash.com/photo-1526779259212-939e64788e3c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZnJlZSUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D",
+      "content": "browsed"
     }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
+  ]
 }
